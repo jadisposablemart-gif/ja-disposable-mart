@@ -1,27 +1,13 @@
-# J.A Disposable Mart — Proper Online Order Version
+# Disposable Mart Website
 
-This version uses Cloudflare Pages Functions + D1 for permanent online order storage.
+## Upload to GitHub Pages from phone
 
-Features:
-- Customer catalogue/search/cart
-- No minimum quantity
-- Custom item request
-- Order form
-- Orders saved online in D1
-- WhatsApp order handoff to 9477221145
-- Password-protected admin order list
-- Admin status: New / Confirmed / Packed / Delivered / Cancelled
+1. Download `Disposable_Mart_GitHub.zip` and extract it.
+2. Open GitHub in Chrome and open your `ja-disposable-mart` repository.
+3. Tap **Add file → Upload files**, select `index.html`, `style.css`, and the `assets` folder, then tap **Commit changes**.
+4. Open **Settings → Pages → Build and deployment → Deploy from a branch**, choose **main** and **/(root)**, then **Save**.
+5. Wait a few minutes and open the Pages URL shown there.
 
-## Deploy outline
-1. Create a Cloudflare Pages project connected to this folder/repository.
-2. Create a Cloudflare D1 database named `ja-disposable-mart-db`.
-3. Run `schema.sql` against that D1 database.
-4. Put the real D1 database ID into `wrangler.jsonc`.
-5. Set a strong `ADMIN_PASSWORD` as a secret/environment variable.
-6. Deploy with Pages Functions enabled.
-
-Cloudflare Pages Functions cannot be deployed through the dashboard's Direct Upload flow; use Git integration or Wrangler for this full-stack version.
-
-Important:
-- Do not keep the sample admin password in production.
-- WhatsApp remains the customer communication channel; the database is the source of truth for orders.
+Business details already included:
+- Phone/WhatsApp: 7449711054
+- Address: 83E/1B/H/12 Belgachia Road, Kolkata 700037

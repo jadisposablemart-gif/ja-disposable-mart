@@ -1,43 +1,42 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>J.A Disposable Mart</title>
-<style>
-body{margin:0;font-family:Arial,sans-serif;background:#f5f7fa;color:#17202a}header{background:#111827;color:#fff;padding:20px;position:sticky;top:0;z-index:4}h1{margin:0}header p{margin:6px 0 0;color:#d1d5db}.wrap{max-width:1000px;margin:auto;padding:16px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.card{background:#fff;border-radius:14px;padding:15px;box-shadow:0 2px 10px #0001}button{border:0;border-radius:9px;padding:10px 13px;font-weight:bold;cursor:pointer}.add{background:#16a34a;color:white;width:100%}.primary{background:#2563eb;color:#fff;width:100%}.wa{background:#25d366;color:#fff;width:100%;font-size:16px}input,textarea,select{width:100%;padding:11px;margin:5px 0 10px;border:1px solid #d1d5db;border-radius:9px;font-size:15px}.row{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:9px 0}.qty button{padding:5px 9px;background:#e5e7eb}.muted{color:#6b7280;font-size:13px}.price{font-size:20px;font-weight:bold}.badge{font-size:12px;background:#dbeafe;color:#1d4ed8;padding:4px 8px;border-radius:15px}.order{border:1px solid #ddd;padding:12px;border-radius:10px;margin:10px 0}.hidden{display:none}.catbar{display:flex;gap:7px;overflow:auto;padding:10px;background:#fff}.catbar button{white-space:nowrap;background:#e5e7eb}.search{font-size:16px}.status{padding:5px;border-radius:8px}
-</style></head><body>
-<header><h1>J.A Disposable Mart</h1><p>Disposable • Packaging • Shop Supplies</p></header>
-<div class="wrap">
-<input class="search" id="search" placeholder="🔎 Search item..." oninput="render()">
-<div class="catbar" id="cats"></div>
-<h2>Products</h2><div id="products" class="grid"></div>
-<div class="card" style="margin-top:18px"><h2>🛒 Cart <span id="count">(0)</span></h2><div id="cart"></div><div class="row"><b>Total</b><b id="total">₹0</b></div></div>
-<div class="card" style="margin-top:18px"><h2>🔎 Item not listed?</h2><p class="muted">No minimum quantity. Tell us any disposable item and quantity; we'll arrange it if available.</p>
-<input id="customItem" placeholder="Item name"><input id="customQty" placeholder="Quantity"><textarea id="customNote" placeholder="Size / quality / details"></textarea><button class="wa" onclick="customRequest()">Request on WhatsApp</button></div>
-<div class="card" style="margin-top:18px"><h2>📝 Place Order</h2><input id="name" placeholder="Customer name"><input id="mobile" placeholder="Mobile number"><textarea id="address" rows="3" placeholder="Delivery address"></textarea><select id="payment"><option>Cash on Delivery</option><option>UPI</option><option>Payment later (if agreed)</option></select><button class="wa" onclick="order()">Place Order on WhatsApp</button></div>
-<div class="card" style="margin-top:18px"><h2>🔐 Admin</h2><input id="pass" type="password" placeholder="Admin password"><button class="primary" onclick="loadAdmin()">View Orders</button><div id="admin"></div></div>
-</div>
-<script>
-const WA="919477221145", products=[
-{id:1,n:"Plastic Carry Bag",p:140,u:"1 kg",c:"Carry Bags"},
-{id:2,n:"Paper Cup",p:30,u:"100 pcs",c:"Cups & Glasses"},
-{id:3,n:"Plastic Glass",p:60,u:"100 pcs",c:"Cups & Glasses"},
-{id:4,n:"Plastic Spoon",p:null,u:"100 pcs",c:"Cutlery"},
-{id:5,n:"Wooden Spoon",p:null,u:"100 pcs",c:"Cutlery"},
-{id:6,n:"Plastic Fork",p:null,u:"100 pcs",c:"Cutlery"},
-{id:7,n:"Plastic Knife",p:null,u:"100 pcs",c:"Cutlery"},
-{id:8,n:"Paper Plate",p:null,u:"100 pcs",c:"Plates & Bowls"},
-{id:9,n:"Paper Bowl / Dona",p:null,u:"100 pcs",c:"Plates & Bowls"},
-{id:10,n:"Straw",p:null,u:"100 pcs",c:"Straws"},
-{id:11,n:"Disposable Gloves",p:null,u:"100 pcs",c:"Hygiene"},
-{id:12,n:"Food Container",p:null,u:"100 pcs",c:"Food Packaging"},
-{id:13,n:"Garbage Bag",p:null,u:"1 pack",c:"Packaging"},
-{id:14,n:"Wooden Fork",p:null,u:"100 pcs",c:"Cutlery"}];
-let cart={},cat="All";
-const money=n=>"₹"+Number(n).toLocaleString("en-IN");
-function render(){let q=(document.getElementById("search").value||"").toLowerCase();let cs=["All",...new Set(products.map(x=>x.c))];document.getElementById("cats").innerHTML=cs.map(x=>`<button onclick="cat='${x}';render()">${x}</button>`).join("");let ps=products.filter(x=>(cat==="All"||x.c===cat)&&x.n.toLowerCase().includes(q));document.getElementById("products").innerHTML=ps.map(x=>`<div class="card"><span class="badge">${x.c}</span><h3>${x.n}</h3><div class="price">${x.p?money(x.p):"Price on request"}</div><div class="muted">${x.u}</div><button class="add" onclick="add(${x.id})">${x.p?"Add to cart":"Request price"}</button></div>`).join("")}
-function add(id){let p=products.find(x=>x.id===id);if(!p.p){document.getElementById("customItem").value=p.n;document.getElementById("customItem").focus();return}cart[id]=(cart[id]||0)+1;drawCart()}
-function ch(id,d){cart[id]=(cart[id]||0)+d;if(cart[id]<=0)delete cart[id];drawCart()}
-function drawCart(){let ids=Object.keys(cart),t=0;document.getElementById("count").textContent="("+ids.reduce((a,id)=>a+cart[id],0)+")";document.getElementById("cart").innerHTML=ids.length?ids.map(id=>{let p=products.find(x=>x.id==id),q=cart[id],s=p.p*q;t+=s;return `<div class="row"><div><b>${p.n}</b><div class="muted">${q} × ${money(p.p)} / ${p.u}</div></div><div class="qty"><button onclick="ch(${id},-1)">−</button> ${q} <button onclick="ch(${id},1)">+</button></div></div>`}).join(""):"<p class='muted'>Cart is empty.</p>";document.getElementById("total").textContent=money(t)}
-async function order(){let items=Object.keys(cart).map(id=>{let p=products.find(x=>x.id==id),q=cart[id];return{name:p.n,quantity:q,unit:p.u,subtotal:p.p*q}});let name=document.getElementById("name").value.trim(),mobile=document.getElementById("mobile").value.trim(),address=document.getElementById("address").value.trim(),payment=document.getElementById("payment").value;if(!name||!mobile||!address||!items.length){alert("Name, mobile, address and cart are required.");return}let total=items.reduce((s,x)=>s+x.subtotal,0);let r=await fetch("/api/orders",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({name,mobile,address,payment,items,total})});let data=await r.json();if(!r.ok){alert(data.error||"Order failed");return}let text=`*J.A Disposable Mart - New Order*%0AOrder ID: ${data.id}%0A%0A${items.map(x=>`• ${x.name} - ${x.quantity} × ${x.unit} = ${money(x.subtotal)}`).join("%0A")}%0A%0A*Total: ${money(total)}*%0AName: ${encodeURIComponent(name)}%0AMobile: ${mobile}%0AAddress: ${encodeURIComponent(address)}%0APayment: ${encodeURIComponent(payment)}`;window.open("https://wa.me/"+WA+"?text="+text,"_blank");cart={};drawCart()}
-async function customRequest(){let item=document.getElementById("customItem").value.trim(),quantity=document.getElementById("customQty").value.trim(),note=document.getElementById("customNote").value.trim();if(!item||!quantity){alert("Item and quantity required.");return}let text=`*J.A Disposable Mart - Item Request*%0AItem: ${encodeURIComponent(item)}%0AQuantity: ${encodeURIComponent(quantity)}%0ADetails: ${encodeURIComponent(note||"None")}`;window.open("https://wa.me/"+WA+"?text="+text,"_blank")}
-async function loadAdmin(){let p=document.getElementById("pass").value;let r=await fetch("/api/orders",{headers:{Authorization:"Bearer "+p}});let d=await r.json();if(!r.ok){alert(d.error||"Access denied");return}document.getElementById("admin").innerHTML=d.orders.length?d.orders.map(o=>`<div class="order"><b>${o.id}</b> <span class="muted">${o.created_at}</span><p><b>${o.name}</b> • ${o.mobile}<br>${o.address}<br>Payment: ${o.payment}</p>${o.items.map(x=>`${x.name}: ${x.quantity} × ${x.unit}`).join("<br>")}<p><b>Total: ${money(o.total)}</b></p><select onchange="status('${o.id}',this.value)"><option ${o.status==="New"?"selected":""}>New</option><option ${o.status==="Confirmed"?"selected":""}>Confirmed</option><option ${o.status==="Packed"?"selected":""}>Packed</option><option ${o.status==="Delivered"?"selected":""}>Delivered</option><option ${o.status==="Cancelled"?"selected":""}>Cancelled</option></select></div>`).join(""):"<p class='muted'>No orders.</p>"}
-async function status(id,s){let p=document.getElementById("pass").value;await fetch("/api/orders/"+id,{method:"PATCH",headers:{"content-type":"application/json",Authorization:"Bearer "+p},body:JSON.stringify({status:s})});loadAdmin()}
-render();drawCart();
-</script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Disposable Mart - disposable and packaging items in Kolkata.">
+<title>Disposable Mart | Kolkata</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="nav"><div class="wrap navin">
+<a class="brand" href="#home"><img src="assets/logo.jpg" alt="Disposable Mart logo"><b>Disposable Mart</b></a>
+<nav><a href="#home">Home</a><a href="#products">Products</a><a href="#about">About</a><a href="#contact">Contact</a></nav>
+<a class="pill" href="https://wa.me/917449711054?text=Hello%20Disposable%20Mart%2C%20I%20want%20to%20enquire%20about%20your%20products." target="_blank">WhatsApp</a>
+</div></header>
+<section id="home" class="hero"><div class="wrap heroGrid"><div>
+<div class="tag">J.A BUSINESS • KOLKATA</div>
+<h1>Disposable products for <span>everyday business.</span></h1>
+<p>Carry bags, plastic glasses, paper cups, spoons and many more items for shops, food businesses, events and everyday use.</p>
+<div class="actions"><a class="btn" href="https://wa.me/917449711054?text=Hello%20Disposable%20Mart%2C%20I%20want%20to%20enquire%20about%20your%20products." target="_blank">Enquire on WhatsApp</a><a class="btn light" href="tel:+917449711054">Call 74497 11054</a></div>
+<div class="ticks"><span>✓ Wide range</span><span>✓ Retail & bulk</span><span>✓ Kolkata</span></div>
+</div><div class="logoCard"><img src="assets/logo.jpg" alt="J.A Business Disposable Mart"></div></div></section>
+<section id="products" class="section"><div class="wrap">
+<div class="tag">OUR RANGE</div><h2>Popular products</h2><p class="lead">Tap any product to ask us about price and availability.</p>
+<div class="grid">
+<article><div class="ico">🛍️</div><h3>Carry Bags</h3><p>Different types and sizes for packaging.</p><a href="https://wa.me/917449711054?text=I%20want%20to%20enquire%20about%20Carry%20Bags." target="_blank">Ask price →</a></article>
+<article><div class="ico">🥤</div><h3>Plastic Glasses</h3><p>Disposable glasses for shops and events.</p><a href="https://wa.me/917449711054?text=I%20want%20to%20enquire%20about%20Plastic%20Glasses." target="_blank">Ask price →</a></article>
+<article><div class="ico">☕</div><h3>Paper Cups</h3><p>Cups for tea, coffee and beverages.</p><a href="https://wa.me/917449711054?text=I%20want%20to%20enquire%20about%20Paper%20Cups." target="_blank">Ask price →</a></article>
+<article><div class="ico">🥄</div><h3>Spoons & Cutlery</h3><p>Disposable serving essentials.</p><a href="https://wa.me/917449711054?text=I%20want%20to%20enquire%20about%20Spoons%20and%20Cutlery." target="_blank">Ask price →</a></article>
+<article><div class="ico">🍱</div><h3>Food Containers</h3><p>Packaging for takeaway and food service.</p><a href="https://wa.me/917449711054?text=I%20want%20to%20enquire%20about%20Food%20Containers." target="_blank">Ask price →</a></article>
+<article><div class="ico">🍽️</div><h3>Plates & More</h3><p>Disposable serving items and other essentials.</p><a href="https://wa.me/917449711054?text=I%20want%20to%20enquire%20about%20other%20disposable%20items." target="_blank">Ask what's available →</a></article>
+</div></div></section>
+<section id="about" class="dark section"><div class="wrap two"><div><div class="tag">ABOUT US</div><h2>Your local disposable items partner in Kolkata.</h2></div><div><p>Disposable Mart provides a broad range of disposable and packaging products for customers and businesses. Contact us for your requirement, sizes and latest availability.</p></div></div></section>
+<section id="contact" class="section"><div class="wrap contact"><div><div class="tag">CONTACT</div><h2>Let's discuss what you need.</h2><p>Call or WhatsApp us for product availability and enquiries.</p></div><div class="details">
+<a href="tel:+917449711054"><b>📞 74497 11054</b><small>Call us</small></a>
+<a href="https://wa.me/917449711054?text=Hello%20Disposable%20Mart%2C%20I%20want%20to%20enquire%20about%20your%20products." target="_blank"><b>💬 WhatsApp</b><small>Message us</small></a>
+<a href="https://www.google.com/maps/search/?api=1&query=83E%2F1B%2FH%2F12%20Belgachia%20Road%2C%20Kolkata%20700037" target="_blank"><b>📍 Address</b><small>83E/1B/H/12 Belgachia Road, Kolkata 700037</small></a>
+</div></div></section>
+<a class="float" href="https://wa.me/917449711054?text=Hello%20Disposable%20Mart%2C%20I%20want%20to%20enquire%20about%20your%20products." target="_blank">WA</a>
+<footer><div class="wrap foot"><span>© <span id="y"></span> Disposable Mart</span><span>J.A BUSINESS • Kolkata</span></div></footer>
+<script>document.getElementById('y').textContent=new Date().getFullYear()</script>
+</body></html>
